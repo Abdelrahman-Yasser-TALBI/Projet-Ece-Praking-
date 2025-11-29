@@ -4,6 +4,9 @@
 #include "gestion_voitures.h"
 #include "statistiques.h"
 
+// Déclaration externe de clearScreen (définie dans main.c)
+extern void clearScreen(); 
+
 /**
  * Affiche le menu principal
  */
@@ -13,12 +16,12 @@ void afficherMenu() {
     printf("|     PARKING INTELLIGENT v1.0         |\n");
     printf("========================================\n");
     printf("\n");
-    printf("   1. a Enregistrer une entree\n");
-    printf("   2. v Enregistrer une sortie\n");
-    printf("   3. - Voir les voitures presentes\n");
-    printf("   4. / Afficher l'historique complet\n");
-    printf("   5. B Afficher les statistiques\n");
-    printf("   6. S Sauvegarder et quitter\n");
+    printf("   1. Enregistrer une entree\n");
+    printf("   2. Enregistrer une sortie\n");
+    printf("   3. Voir les voitures presentes\n");
+    printf("   4. Afficher l'historique complet\n");
+    printf("   5. Afficher les statistiques\n");
+    printf("   6. Sauvegarder et quitter\n");
     printf("\n");
     printf("   Votre choix : ");
 }
@@ -137,8 +140,15 @@ void executerMenu() {
     chargerDonnees();
     
     while (continuer) {
+        
+        // 1. EFFACE L'ÉCRAN AVANT D'AFFICHER LE MENU
+        clearScreen(); 
+        
         afficherMenu();
         choix = lireChoix();
+        
+        // 2. EFFACE L'ÉCRAN APRES AVOIR REÇU LE CHOIX
+        clearScreen();
         
         switch (choix) {
             case 1:
@@ -167,7 +177,7 @@ void executerMenu() {
         
         if (continuer) {
             printf("\nAppuyez sur ENTREE pour continuer...");
-            getchar();
+            getchar(); // Met en pause le programme
         }
     }
 }

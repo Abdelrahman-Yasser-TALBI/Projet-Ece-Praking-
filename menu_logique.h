@@ -8,5 +8,6 @@ void traiterEntree();
 void traiterSortie();
 void afficherHistorique();
 void executerMenu();
+void clearScreen();
 
 #endif
