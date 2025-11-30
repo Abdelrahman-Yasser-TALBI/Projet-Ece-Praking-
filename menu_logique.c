@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "menu_logique.h"
+#include "menu_logique.h" // Inclus
 #include "gestion_voitures.h"
-#include "statistiques.h"
+#include "statistiques.h" // Assurez-vous qu'il est inclus !
+
+
 
 // Déclaration externe de clearScreen (définie dans main.c)
 extern void clearScreen(); 
@@ -47,6 +49,7 @@ int lireChoix() {
 void traiterEntree() {
     char plaque[TAILLE_PLAQUE];
     int heure;
+    int minute; // NOUVEAU
     
     printf("\n-----------------------------\n");
     printf("|   ENREGISTREMENT ENTREE     |\n");
@@ -57,13 +60,23 @@ void traiterEntree() {
     
     printf("Heure d entree (0-23) : ");
     if (scanf("%d", &heure) != 1) {
-        printf("x Entree invalide !\n");
+        printf("x Heure invalide !\n");
         while (getchar() != '\n');
         return;
     }
+    
+    // NOUVEAU : Demande des minutes
+    printf("Minute d entree (0-59) : ");
+    if (scanf("%d", &minute) != 1) {
+        printf("x Minute invalide !\n");
+        while (getchar() != '\n');
+        return;
+    }
+
     while (getchar() != '\n');
     
-    ajouterVoiture(plaque, heure);
+    // APPEL MODIFIÉ : Passe heure et minute
+    ajouterVoiture(plaque, heure, minute); 
 }
 
 /**
@@ -72,6 +85,7 @@ void traiterEntree() {
 void traiterSortie() {
     char plaque[TAILLE_PLAQUE];
     int heure;
+    int minute; // NOUVEAU
     
     printf("\n-----------------------------\n");
     printf("|   ENREGISTREMENT SORTIE     |\n");
@@ -82,13 +96,23 @@ void traiterSortie() {
     
     printf("Heure de sortie (0-23) : ");
     if (scanf("%d", &heure) != 1) {
-        printf("x Entree invalide !\n");
+        printf("x Heure invalide !\n");
         while (getchar() != '\n');
         return;
     }
+
+    // NOUVEAU : Demande des minutes
+    printf("Minute de sortie (0-59) : ");
+    if (scanf("%d", &minute) != 1) {
+        printf("x Minute invalide !\n");
+        while (getchar() != '\n');
+        return;
+    }
+    
     while (getchar() != '\n');
     
-    enregistrerSortie(plaque, heure);
+    // APPEL MODIFIÉ : Passe heure et minute
+    enregistrerSortie(plaque, heure, minute);
 }
 
 /**
@@ -104,29 +128,44 @@ void afficherHistorique() {
         return;
     }
     
-    printf("----------+--------+--------+---------+----------\n");
-    printf("| Plaque   | Entree | Sortie | Duree   | Montant |\n");
-    printf("----------+--------+--------+---------+----------\n");
+    // MODIFIÉ : Nouvelles colonnes et format pour les minutes/double
+    printf("----------+-----------+-----------+---------+-----------+----------\n");
+    printf("| Plaque   | Entree    | Sortie    | Duree   | Montant   |\n");
+    printf("----------+-----------+-----------+---------+-----------+----------\n");
     
     for (int i = 0; i < nbVoitures; i++) {
-        printf("| %-8s |   %2dh   |", 
+        // Entrée
+        printf("| %-8s | %02dh %02dmin |", 
                 parking[i].plaque, 
-                parking[i].heureEntree);
+                parking[i].heureEntree,
+                parking[i].minuteEntree); // Affichage Minutes
         
         if (parking[i].heureSortie == -1) {
-            printf("   --     |   --    |   --      |\n");
+            // Sortie non effectuée
+            printf("   --        |   --    |   --      |\n");
         } else {
-            int duree = parking[i].heureSortie - parking[i].heureEntree;
-            if (duree < 0) duree += 24;
+            // Recalcul de la durée pour l'affichage précis
+            int temps_entree_min = (parking[i].heureEntree * 60) + parking[i].minuteEntree;
+            int temps_sortie_min = (parking[i].heureSortie * 60) + parking[i].minuteSortie;
+            int duree_minutes = temps_sortie_min - temps_entree_min;
+            if (duree_minutes < 0) {
+                duree_minutes += (24 * 60);
+            }
             
-            printf("   %2dh   |   %2dh    |   %.2f e  |\n",
+            int duree_h = duree_minutes / 60;
+            int duree_m = duree_minutes % 60;
+            
+            // Sortie et Montant (%.2f)
+            printf(" %02dh %02dmin | %02dh %02dmin | %.2f e |\n",
                     parking[i].heureSortie,
-                    duree,
+                    parking[i].minuteSortie,
+                    duree_h,
+                    duree_m,
                     parking[i].montant);
         }
     }
     
-    printf("----------+--------+--------+---------+----------\n\n");
+    printf("----------+-----------+-----------+---------+-----------+----------\n\n");
 }
 
 /**

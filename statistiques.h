@@ -3,12 +3,16 @@
 
 #define FICHIER_DONNEES "parking.txt"
 
-// Prototypes des fonctions - Etudiant 3
+// Prototypes des fonctions - Étudiant 3
 void afficherStatistiques();
+
+// MODIFIÉ : Types de retour passés à double pour la précision
+double calculerRevenuTotal(); 
+double calculerDureeMoyenne();
+
+int compterVoituresSorties();
 void sauvegarderDonnees();
 void chargerDonnees();
-float calculerRevenuTotal();
-float calculerDureeMoyenne();
-int compterVoituresSorties();
 
-#endif
+
+#endif // STATISTIQUES_H

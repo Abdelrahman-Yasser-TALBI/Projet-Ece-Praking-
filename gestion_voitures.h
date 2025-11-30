@@ -8,8 +8,10 @@
 typedef struct {
     char plaque[TAILLE_PLAQUE];
     int heureEntree;
-    int heureSortie;    // -1 si pas encore sortie
-    float montant;
+    int minuteEntree;    // NOUVEAU
+    int heureSortie;
+    int minuteSortie;    // NOUVEAU
+    double montant;      // MODIFIÉ : float -> double
 } Voiture;
 
 // Variables globales partagees
@@ -17,10 +19,10 @@ extern Voiture parking[MAX_VOITURES];
 extern int nbVoitures;
 
 // Prototypes des fonctions - Etudiant 1
-int ajouterVoiture(const char* plaque, int heureEntree);
+int ajouterVoiture(const char* plaque, int heureEntree, int minuteEntree); // MODIFIÉ
 int rechercherVoiture(const char* plaque);
 int verifierExistence(const char* plaque);
-int enregistrerSortie(const char* plaque, int heureSortie);
+int enregistrerSortie(const char* plaque, int heureSortie, int minuteSortie); // MODIFIÉ
 void afficherVoituresPresentes();
 
 #endif

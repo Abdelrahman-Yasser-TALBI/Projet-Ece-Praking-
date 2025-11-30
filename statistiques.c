@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "statistiques.h"
 #include "gestion_voitures.h"
+#include <math.h> // Utile pour les calculs de float/double
 
 /**
  * Compte le nombre de voitures qui sont sorties
@@ -8,6 +9,7 @@
 int compterVoituresSorties() {
     int compteur = 0;
     for (int i = 0; i < nbVoitures; i++) {
+        // La verification reste la meme (basée sur la plaque et l'état de sortie)
         if (parking[i].heureSortie != -1) {
             compteur++;
         }
@@ -17,9 +19,10 @@ int compterVoituresSorties() {
 
 /**
  * Calcule le revenu total du parking
+ * MODIFIÉ : Type de retour float -> double
  */
-float calculerRevenuTotal() {
-    float total = 0.0;
+double calculerRevenuTotal() {
+    double total = 0.0;
     for (int i = 0; i < nbVoitures; i++) {
         if (parking[i].heureSortie != -1) {
             total += parking[i].montant;
@@ -30,21 +33,30 @@ float calculerRevenuTotal() {
 
 /**
  * Calcule la duree moyenne de stationnement
+ * MODIFIÉ : Type de retour float -> double
  */
-float calculerDureeMoyenne() {
-    int totalDuree = 0;
+double calculerDureeMoyenne() {
+    int totalDureeMinutes = 0; // Calculer la durée totale en minutes
     int nbSorties = 0;
     
     for (int i = 0; i < nbVoitures; i++) {
         if (parking[i].heureSortie != -1) {
-            int duree = parking[i].heureSortie - parking[i].heureEntree;
-            if (duree < 0) duree += 24;
-            totalDuree += duree;
+            // Conversion en minutes pour le calcul précis de la durée
+            int temps_entree_min = (parking[i].heureEntree * 60) + parking[i].minuteEntree;
+            int temps_sortie_min = (parking[i].heureSortie * 60) + parking[i].minuteSortie;
+            
+            int duree_minutes = temps_sortie_min - temps_entree_min;
+            if (duree_minutes < 0) {
+                duree_minutes += (24 * 60); 
+            }
+
+            totalDureeMinutes += duree_minutes;
             nbSorties++;
         }
     }
     
-    return nbSorties > 0 ? (float)totalDuree / nbSorties : 0.0;
+    // Retourne la moyenne en heures
+    return nbSorties > 0 ? (double)totalDureeMinutes / (nbSorties * 60.0) : 0.0;
 }
 
 /**
@@ -53,8 +65,10 @@ float calculerDureeMoyenne() {
 void afficherStatistiques() {
     int nbSorties = compterVoituresSorties();
     int nbPresentes = nbVoitures - nbSorties;
-    float revenu = calculerRevenuTotal();
-    float dureeMoyenne = calculerDureeMoyenne();
+    
+    // MODIFIÉ : Utilisation de double pour les variables de revenu et durée
+    double revenu = calculerRevenuTotal();
+    double dureeMoyenne = calculerDureeMoyenne();
     
     printf("\n=======================================\n");
     printf("|          STATISTIQUES               |\n");
@@ -85,20 +99,22 @@ void sauvegarderDonnees() {
         return;
     }
     
-    // En-tete du fichier
+    // En-tete du fichier (MODIFIÉ pour inclure les minutes)
     fprintf(fichier, "# PARKING INTELLIGENT - HISTORIQUE\n");
-    fprintf(fichier, "# Format: PLAQUE HEURE_ENTREE HEURE_SORTIE MONTANT\n");
+    fprintf(fichier, "# Format: PLAQUE HEURE_ENTREE MIN_ENTREE HEURE_SORTIE MIN_SORTIE MONTANT\n");
     fprintf(fichier, "# HEURE_SORTIE = -1 si voiture encore presente\n");
     fprintf(fichier, "#\n");
     fprintf(fichier, "%d\n", nbVoitures);
     
-    // Sauvegarde de chaque voiture
+    // Sauvegarde de chaque voiture (MODIFIÉ pour inclure les minutes)
     for (int i = 0; i < nbVoitures; i++) {
-        fprintf(fichier, "%s %d %d %.2f\n",
+        fprintf(fichier, "%s %d %d %d %d %.2f\n",
                 parking[i].plaque,
                 parking[i].heureEntree,
+                parking[i].minuteEntree,
                 parking[i].heureSortie,
-                parking[i].montant);
+                parking[i].minuteSortie,
+                parking[i].montant); // Écrit le double
     }
     
     fclose(fichier);
@@ -128,13 +144,15 @@ void chargerDonnees() {
     // Lire le nombre de voitures
     sscanf(ligne, "%d", &nbVoitures);
     
-    // Lire chaque voiture
+    // Lire chaque voiture (MODIFIÉ : Ajout des minutes, et %lf pour lire un double)
     for (int i = 0; i < nbVoitures; i++) {
-        fscanf(fichier, "%s %d %d %f",
+        fscanf(fichier, "%s %d %d %d %d %lf", 
                 parking[i].plaque,
                 &parking[i].heureEntree,
+                &parking[i].minuteEntree, 
                 &parking[i].heureSortie,
-                &parking[i].montant);
+                &parking[i].minuteSortie, 
+                &parking[i].montant); // %lf pour lire le double
     }
     
     fclose(fichier);
